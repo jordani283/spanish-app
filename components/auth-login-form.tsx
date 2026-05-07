@@ -14,6 +14,13 @@ export function AuthLoginForm() {
     setIsLoading(true);
 
     try {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        setStatus(
+          "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in this deployment build. Recheck Vercel env vars and redeploy.",
+        );
+        return;
+      }
+
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -27,8 +34,10 @@ export function AuthLoginForm() {
       } else {
         setStatus("Magic link sent. Open your email to complete sign in.");
       }
-    } catch {
-      setStatus("Supabase is not configured yet. Add environment variables to enable login.");
+    } catch (error) {
+      setStatus(
+        `Supabase login failed: ${error instanceof Error ? error.message : "Unknown error. Check deployment logs."}`,
+      );
     } finally {
       setIsLoading(false);
     }
