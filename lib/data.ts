@@ -29,20 +29,7 @@ export type GrammarAttemptResult = {
 
 const DEMO_USER_ID = "demo-user";
 
-let demoVocab: VocabItem[] = [
-  {
-    id: "demo-1",
-    user_id: DEMO_USER_ID,
-    word: "aprovechar",
-    translation: "to make the most of",
-    part_of_speech: "verb",
-    notes: "Often followed by infinitive with de",
-    source_context: "Podcast episode",
-    example_sentence: "Quiero aprovechar el tiempo para estudiar.",
-    ai_enrichment: null,
-    created_at: new Date().toISOString(),
-  },
-];
+let demoVocab: VocabItem[] = [];
 
 const demoGrammarPrompts: GrammarPrompt[] = [
   {
@@ -159,21 +146,16 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const sevenDaysAgo = subDays(new Date(), 7);
 
   if (!canUseSupabase() || userId === DEMO_USER_ID) {
-    const knownVerbs = demoVocab.filter((item) => item.part_of_speech === "verb").length;
     return {
-      knownVerbs,
+      knownVerbs: 0,
       verbGoal: 500,
-      activeReviewQueue: Math.max(0, 20 - knownVerbs),
-      streakDays: 4,
-      grammarMasteryPct: 58,
-      retentionRatePct: 72,
-      avgAttemptsPerCorrect: 1.8,
-      weeklyStudyMinutes: 195,
-      weakestAreas: [
-        { tag: "subjunctive", errorRatePct: 31 },
-        { tag: "por_vs_para", errorRatePct: 24 },
-        { tag: "gender_agreement", errorRatePct: 19 },
-      ],
+      activeReviewQueue: 0,
+      streakDays: 0,
+      grammarMasteryPct: 0,
+      retentionRatePct: 0,
+      avgAttemptsPerCorrect: 0,
+      weeklyStudyMinutes: 0,
+      weakestAreas: [],
     };
   }
 
