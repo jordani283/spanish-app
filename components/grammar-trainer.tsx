@@ -63,11 +63,14 @@ export function GrammarTrainer({ prompts }: { prompts: GrammarPrompt[] }) {
   }
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-6">
+    <section className="surface-card p-5 sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold text-zinc-900">Grammar trainer</h2>
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900">Grammar trainer</h2>
+          <p className="mt-1 text-xs text-slate-500">Type your answer. Hints appear after repeat misses.</p>
+        </div>
         <select
-          className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base min-h-11 max-w-[12rem] text-sm"
           value={selectedTopic}
           onChange={(event) => {
             setSelectedTopic(event.target.value);
@@ -88,29 +91,37 @@ export function GrammarTrainer({ prompts }: { prompts: GrammarPrompt[] }) {
       </div>
 
       {!current ? (
-        <p className="mt-4 text-sm text-zinc-600">No prompts available for this topic yet.</p>
+        <p className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
+          No prompts available for this topic yet.
+        </p>
       ) : (
         <>
-          <p className="mt-4 text-xs uppercase text-zinc-500">{topicLabels[current.topic] ?? current.topic}</p>
-          <p className="mt-2 text-lg text-zinc-900">{current.prompt}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="badge-primary">{topicLabels[current.topic] ?? current.topic}</span>
+            <span className="badge-muted">Attempt {attemptsInRound}</span>
+          </div>
+          <p className="mt-3 text-xl font-medium text-slate-900">{current.prompt}</p>
 
-          <form className="mt-4 flex gap-2" onSubmit={submitAttempt}>
+          <form
+            className="sticky bottom-20 mt-5 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur sm:static sm:flex-row"
+            onSubmit={submitAttempt}
+          >
             <input
-              className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="input-base min-h-12 flex-1"
               value={answer}
               onChange={(event) => setAnswer(event.target.value)}
               placeholder="Type your answer"
               required
             />
-            <button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white" type="submit">
-              Check
+            <button className="btn-primary w-full sm:w-auto" type="submit">
+              Check answer
             </button>
           </form>
         </>
       )}
 
-      {feedback && <p className="mt-3 text-sm text-zinc-700">{feedback}</p>}
-      {hint && <p className="mt-1 text-sm text-zinc-500">Hint: {hint}</p>}
+      {feedback && <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{feedback}</p>}
+      {hint && <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-700">Hint: {hint}</p>}
     </section>
   );
 }

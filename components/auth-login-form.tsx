@@ -46,9 +46,9 @@ export function AuthLoginForm() {
   return (
     <form className="mt-6 space-y-4" onSubmit={onSubmit}>
       <label className="block">
-        <span className="mb-1 block text-sm text-zinc-700">Email</span>
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Email</span>
         <input
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base min-h-12"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -56,13 +56,13 @@ export function AuthLoginForm() {
         />
       </label>
       <button
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
         type="submit"
         disabled={isLoading}
       >
         {isLoading ? "Sending..." : "Send magic link"}
       </button>
-      {status && <p className="text-sm text-zinc-600">{status}</p>}
+      {status && <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">{status}</p>}
     </form>
   );
 }

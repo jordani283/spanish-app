@@ -8,9 +8,9 @@ export default async function GrammarPage() {
   return (
     <>
       <AppNav />
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-        <h1 className="text-2xl font-semibold text-zinc-900">Grammar practice</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+      <main className="page-shell mobile-bottom-safe flex-1">
+        <h1 className="section-title">Grammar practice</h1>
+        <p className="section-subtitle">
           Typed answers first. After repeated mistakes, hints appear so you can correct the pattern.
         </p>
         <div className="mt-6">

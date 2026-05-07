@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f7fb;
-  --foreground: #151821;
+  --background: #f4f7fb;
+  --foreground: #111827;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --primary: #3348d6;
+  --primary-strong: #2437b8;
+  --success: #1f9a67;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --ring: rgba(51, 72, 214, 0.2);
+  --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 @theme inline {
@@ -14,8 +23,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f4f7fb;
+    --foreground: #111827;
   }
 }
 
@@ -23,4 +32,85 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pt-10;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border bg-white shadow-sm transition-all duration-200;
+    border-color: var(--border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .surface-card-hover {
+    @apply hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl;
+  }
+
+  .section-subtitle {
+    @apply mt-2 text-sm leading-6 text-slate-500 sm:text-base;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-medium text-white shadow-sm transition duration-200 ease-out active:scale-[0.98];
+    background: var(--primary);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-strong);
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl border bg-white px-4 text-sm font-medium text-slate-700 transition duration-200 ease-out hover:bg-slate-50 active:scale-[0.98];
+    border-color: var(--border);
+  }
+
+  .btn-ghost {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-medium text-slate-600 transition duration-200 ease-out hover:bg-slate-100 hover:text-slate-900 active:scale-[0.98];
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border bg-white px-3.5 py-2.5 text-[15px] text-slate-900 transition duration-200 placeholder:text-slate-400 focus:outline-none;
+    border-color: var(--border);
+  }
+
+  .input-base:focus {
+    border-color: #8da0ff;
+    box-shadow: 0 0 0 4px var(--ring);
+  }
+
+  .badge-primary {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium text-indigo-700;
+    background: rgba(79, 70, 229, 0.12);
+  }
+
+  .badge-success {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium text-emerald-700;
+    background: rgba(16, 185, 129, 0.12);
+  }
+
+  .badge-muted {
+    @apply inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600;
+  }
+
+  .metric-card {
+    @apply rounded-2xl border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md;
+    border-color: var(--border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .mobile-bottom-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 6.25rem);
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-xl bg-slate-200/70;
+  }
 }

@@ -25,37 +25,43 @@ export default async function ReviewPage({ searchParams }: { searchParams: Searc
   return (
     <>
       <AppNav />
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-        <h1 className="text-2xl font-semibold text-zinc-900">Review vocabulary</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+      <main className="page-shell mobile-bottom-safe flex-1">
+        <h1 className="section-title">Review vocabulary</h1>
+        <p className="section-subtitle">
           Choose a date range and complete every card. Incorrect answers repeat until correct.
         </p>
 
-        <form className="mt-6 grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 md:grid-cols-3" method="GET">
-          <label className="text-sm">
-            <span className="mb-1 block text-zinc-600">Start date</span>
-            <input
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-              type="date"
-              name="start"
-              defaultValue={formatISO(startDate, { representation: "date" })}
-            />
-          </label>
-          <label className="text-sm">
-            <span className="mb-1 block text-zinc-600">End date</span>
-            <input
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-              type="date"
-              name="end"
-              defaultValue={formatISO(endDate, { representation: "date" })}
-            />
-          </label>
-          <div className="flex items-end">
-            <button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white" type="submit">
-              Load review set
-            </button>
+        <section className="surface-card mt-6 p-4 sm:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium text-slate-700">Session filter</p>
+            <span className="badge-muted">{queueItems.length} cards loaded</span>
           </div>
-        </form>
+          <form className="grid gap-3 sm:grid-cols-3" method="GET">
+            <label className="text-sm">
+              <span className="mb-1.5 block text-slate-600">Start date</span>
+              <input
+                className="input-base min-h-11"
+                type="date"
+                name="start"
+                defaultValue={formatISO(startDate, { representation: "date" })}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1.5 block text-slate-600">End date</span>
+              <input
+                className="input-base min-h-11"
+                type="date"
+                name="end"
+                defaultValue={formatISO(endDate, { representation: "date" })}
+              />
+            </label>
+            <div className="flex items-end">
+              <button className="btn-primary w-full sm:w-auto" type="submit">
+                Load review set
+              </button>
+            </div>
+          </form>
+        </section>
 
         <div className="mt-6">
           <ReviewSession items={queueItems} />

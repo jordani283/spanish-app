@@ -2,22 +2,27 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-zinc-100 px-6 py-12">
-      <section className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
-        <p className="text-sm uppercase tracking-wider text-zinc-500">Camino B2</p>
-        <h1 className="mt-3 text-3xl font-semibold text-zinc-900">Train Spanish daily and track real progress</h1>
-        <p className="mt-4 max-w-2xl text-zinc-600">
+    <main className="flex flex-1 items-center justify-center px-4 py-12 sm:px-6">
+      <section className="surface-card w-full max-w-4xl p-8 sm:p-10">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="badge-primary">B1 to B2 Path</span>
+          <span className="badge-success">Cross-device sync</span>
+        </div>
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+          Train Spanish daily and build momentum that lasts
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
           Capture new vocabulary, review by date range with retry-until-correct sessions, and improve grammar with
           typed drills built for B1 to B2 progression.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white" href="/dashboard">
+          <Link className="btn-primary" href="/dashboard">
             Open dashboard
           </Link>
-          <Link className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800" href="/review">
+          <Link className="btn-secondary" href="/review">
             Start review
           </Link>
-          <Link className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800" href="/vocab/new">
+          <Link className="btn-secondary" href="/vocab/new">
             Add vocabulary
           </Link>
         </div>

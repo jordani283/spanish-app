@@ -2,33 +2,54 @@ import { DashboardStats } from "@/lib/types";
 
 export function DashboardStatsCards({ stats }: { stats: DashboardStats }) {
   const progressPct = Math.min(100, Math.round((stats.knownVerbs / stats.verbGoal) * 100));
+  const cards = [
+    {
+      label: "Verb progress",
+      value: `${stats.knownVerbs}/${stats.verbGoal}`,
+      icon: "↗",
+      detail: `${progressPct}% completed`,
+    },
+    {
+      label: "Active review queue",
+      value: `${stats.activeReviewQueue}`,
+      icon: "↺",
+      detail: stats.activeReviewQueue === 0 ? "No reviews due" : "Words ready now",
+    },
+    {
+      label: "Consistency streak",
+      value: `${stats.streakDays} days`,
+      icon: "✦",
+      detail: "Daily practice momentum",
+    },
+    {
+      label: "Grammar mastery",
+      value: `${stats.grammarMasteryPct}%`,
+      icon: "✎",
+      detail: "Recent grammar accuracy",
+    },
+  ];
 
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Verb progress</p>
-        <p className="mt-2 text-2xl font-semibold text-zinc-900">
-          {stats.knownVerbs}/{stats.verbGoal}
-        </p>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-zinc-200">
-          <div className="h-full rounded-full bg-blue-600" style={{ width: `${progressPct}%` }} />
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Active review queue</p>
-        <p className="mt-2 text-2xl font-semibold text-zinc-900">{stats.activeReviewQueue}</p>
-      </article>
-
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Consistency streak</p>
-        <p className="mt-2 text-2xl font-semibold text-zinc-900">{stats.streakDays} days</p>
-      </article>
-
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Grammar mastery</p>
-        <p className="mt-2 text-2xl font-semibold text-zinc-900">{stats.grammarMasteryPct}%</p>
-      </article>
+      {cards.map((card) => (
+        <article key={card.label} className="metric-card">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">{card.label}</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{card.value}</p>
+              <p className="mt-1 text-xs text-slate-500">{card.detail}</p>
+            </div>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-sm font-semibold text-indigo-600">
+              {card.icon}
+            </span>
+          </div>
+          {card.label === "Verb progress" && (
+            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-indigo-600 transition-all duration-300" style={{ width: `${progressPct}%` }} />
+            </div>
+          )}
+        </article>
+      ))}
     </section>
   );
 }
@@ -36,17 +57,20 @@ export function DashboardStatsCards({ stats }: { stats: DashboardStats }) {
 export function DashboardTrends({ stats }: { stats: DashboardStats }) {
   return (
     <section className="mt-6 grid gap-4 md:grid-cols-3">
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Retention rate</p>
-        <p className="mt-2 text-xl font-semibold text-zinc-900">{stats.retentionRatePct}%</p>
+      <article className="metric-card">
+        <p className="text-xs uppercase tracking-wide text-slate-500">Retention rate</p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{stats.retentionRatePct}%</p>
+        <p className="mt-1 text-xs text-slate-500">Correct answers in recent review sessions</p>
       </article>
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Attempts per correct</p>
-        <p className="mt-2 text-xl font-semibold text-zinc-900">{stats.avgAttemptsPerCorrect}</p>
+      <article className="metric-card">
+        <p className="text-xs uppercase tracking-wide text-slate-500">Attempts per correct</p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{stats.avgAttemptsPerCorrect}</p>
+        <p className="mt-1 text-xs text-slate-500">Lower is better for fluency and confidence</p>
       </article>
-      <article className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-xs uppercase text-zinc-500">Study time this week</p>
-        <p className="mt-2 text-xl font-semibold text-zinc-900">{stats.weeklyStudyMinutes} min</p>
+      <article className="metric-card">
+        <p className="text-xs uppercase tracking-wide text-slate-500">Study time this week</p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{stats.weeklyStudyMinutes} min</p>
+        <p className="mt-1 text-xs text-slate-500">Estimated engaged practice minutes</p>
       </article>
     </section>
   );

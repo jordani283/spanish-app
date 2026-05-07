@@ -84,21 +84,21 @@ export function VocabForm() {
   }
 
   return (
-    <form className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6" onSubmit={onSubmit}>
+    <form className="surface-card space-y-5 p-5 sm:p-7" onSubmit={onSubmit}>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-sm text-zinc-700">Word</span>
+          <span className="mb-1.5 block text-sm font-medium text-slate-700">Word</span>
           <input
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="input-base min-h-12"
             value={word}
             onChange={(event) => setWord(event.target.value)}
             required
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm text-zinc-700">Translation</span>
+          <span className="mb-1.5 block text-sm font-medium text-slate-700">Translation</span>
           <input
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="input-base min-h-12"
             value={translation}
             onChange={(event) => setTranslation(event.target.value)}
             required
@@ -107,9 +107,9 @@ export function VocabForm() {
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-zinc-700">Part of speech</span>
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Part of speech</span>
         <select
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base min-h-12"
           value={partOfSpeech}
           onChange={(event) => setPartOfSpeech(event.target.value as (typeof partOptions)[number])}
         >
@@ -122,9 +122,9 @@ export function VocabForm() {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-zinc-700">Source context</span>
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Source context</span>
         <input
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base min-h-12"
           value={sourceContext}
           onChange={(event) => setSourceContext(event.target.value)}
           placeholder="e.g. podcast, conversation, article"
@@ -132,18 +132,18 @@ export function VocabForm() {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-zinc-700">Example sentence</span>
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Example sentence</span>
         <input
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base min-h-12"
           value={exampleSentence}
           onChange={(event) => setExampleSentence(event.target.value)}
         />
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-zinc-700">Notes</span>
+        <span className="mb-1.5 block text-sm font-medium text-slate-700">Notes</span>
         <textarea
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="input-base"
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           rows={3}
@@ -152,7 +152,7 @@ export function VocabForm() {
 
       <div className="flex flex-wrap gap-2">
         <button
-          className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
+          className="btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
           onClick={enrichWithAi}
           disabled={isEnriching || !word || !translation}
@@ -160,7 +160,7 @@ export function VocabForm() {
           {isEnriching ? "Generating..." : "AI enrich"}
         </button>
         <button
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
           type="submit"
           disabled={isSubmitting}
         >
@@ -169,11 +169,11 @@ export function VocabForm() {
       </div>
 
       {enrichment && (
-        <pre className="overflow-x-auto rounded-lg bg-zinc-100 p-3 text-xs text-zinc-700">
+        <pre className="overflow-x-auto rounded-xl bg-slate-50 p-3 text-xs text-slate-700">
           {JSON.stringify(enrichment, null, 2)}
         </pre>
       )}
-      {status && <p className="text-sm text-zinc-600">{status}</p>}
+      {status && <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">{status}</p>}
     </form>
   );
 }
