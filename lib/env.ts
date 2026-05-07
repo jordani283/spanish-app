@@ -1,21 +1,28 @@
-function getEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${name}`);
+export function getPublicSupabaseConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url) {
+    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
   }
 
-  return value;
-}
+  if (!anonKey) {
+    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
 
-export function getPublicSupabaseConfig() {
   return {
-    url: getEnv("NEXT_PUBLIC_SUPABASE_URL"),
-    anonKey: getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    url,
+    anonKey,
   };
 }
 
 export function getOpenAiConfig() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing environment variable: OPENAI_API_KEY");
+  }
+
   return {
-    apiKey: getEnv("OPENAI_API_KEY"),
+    apiKey,
   };
 }
