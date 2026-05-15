@@ -15,6 +15,7 @@ export function ReviewSession({ items }: Props) {
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
   const [attemptsThisRound, setAttemptsThisRound] = useState(1);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [wordStats, setWordStats] = useState<Record<string, { word: string; attempts: number; correct: number }>>({});
 
   const current = state.current;
   const complete = isReviewSessionComplete(state);
@@ -51,6 +52,23 @@ export function ReviewSession({ items }: Props) {
       responseTimeMs,
     });
 
+    setWordStats((previous) => {
+      const existing = previous[current.vocabId] ?? {
+        word: current.word,
+        attempts: 0,
+        correct: 0,
+      };
+
+      return {
+        ...previous,
+        [current.vocabId]: {
+          ...existing,
+          attempts: existing.attempts + 1,
+          correct: existing.correct + (result === "correct" ? 1 : 0),
+        },
+      };
+    });
+
     setState(nextState);
     setLastFeedback(
       result === "correct" ? "Correct. Moving to next item." : "Incorrect. This card will repeat later in this session.",
@@ -81,6 +99,12 @@ export function ReviewSession({ items }: Props) {
     );
   }
 
+  const trackedStats = Object.values(wordStats).sort((a, b) => b.attempts - a.attempts);
+  const uniqueTotal = items.length;
+  const uniqueCorrect = state.completedCount;
+  const totalAttempts = trackedStats.reduce((sum, stat) => sum + stat.attempts, 0);
+  const totalCorrectAttempts = trackedStats.reduce((sum, stat) => sum + stat.correct, 0);
+
   return (
     <section className="surface-card p-5 sm:p-7">
       <div className="flex flex-wrap items-center gap-2">
@@ -88,9 +112,17 @@ export function ReviewSession({ items }: Props) {
         <span className="badge-muted capitalize">{current?.partOfSpeech}</span>
       </div>
       <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{current?.word}</h2>
-      <p className="mt-2 text-sm text-slate-500">
-        Remaining queue: {state.queue.length} | Pending retries: {state.pendingRetries.length}
-      </p>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+        <span className="badge-muted">
+          Score: {uniqueCorrect}/{uniqueTotal} correct
+        </span>
+        <span className="badge-muted">
+          Accuracy: {totalAttempts === 0 ? 0 : Math.round((totalCorrectAttempts / totalAttempts) * 100)}%
+        </span>
+        <span className="badge-muted">
+          Queue: {state.queue.length} | Retries: {state.pendingRetries.length}
+        </span>
+      </div>
 
       <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100">
         <div
@@ -118,6 +150,25 @@ export function ReviewSession({ items }: Props) {
       </form>
 
       {lastFeedback && <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{lastFeedback}</p>}
+
+      {trackedStats.length > 0 && (
+        <section className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+          <h3 className="text-sm font-semibold text-slate-800">Per-verb performance (this session)</h3>
+          <ul className="mt-2 space-y-1.5">
+            {trackedStats.slice(0, 8).map((stat) => {
+              const fails = stat.attempts - stat.correct;
+              return (
+                <li key={stat.word} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs sm:text-sm">
+                  <span className="font-medium text-slate-700">{stat.word}</span>
+                  <span className="text-slate-600">
+                    {stat.correct}/{stat.attempts} correct {fails > 0 ? `(${fails} failed)` : "(mastered first try)"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </section>
   );
 }

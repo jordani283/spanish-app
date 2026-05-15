@@ -27,6 +27,8 @@ export type GrammarAttemptResult = {
   hint?: string;
 };
 
+export type ReviewMode = "due" | "new" | "weak" | "advanced";
+
 const DEMO_USER_ID = "demo-user";
 
 let demoVocab: VocabItem[] = [];
@@ -139,6 +141,103 @@ export async function getVocabByDateRange(start: string, end: string): Promise<V
   }
 
   return data as VocabItem[];
+}
+
+export async function getReviewItemsForMode(input: {
+  mode: ReviewMode;
+  start?: string;
+  end?: string;
+}): Promise<VocabItem[]> {
+  const userId = await getUserId();
+
+  if (!canUseSupabase() || userId === DEMO_USER_ID) {
+    return demoVocab;
+  }
+
+  if (input.mode === "advanced") {
+    if (!input.start || !input.end) {
+      return [];
+    }
+    return getVocabByDateRange(input.start, input.end);
+  }
+
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+
+  const [itemsResponse, progressResponse, reviewsResponse] = await Promise.all([
+    supabase
+      .from("vocab_items")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true }),
+    supabase.from("vocab_progress").select("vocab_item_id,next_due_at").eq("user_id", userId),
+    supabase
+      .from("vocab_reviews")
+      .select("vocab_item_id,result,reviewed_at")
+      .eq("user_id", userId)
+      .order("reviewed_at", { ascending: false })
+      .limit(5000),
+  ]);
+
+  if (itemsResponse.error || !itemsResponse.data) {
+    throw new Error(itemsResponse.error?.message ?? "Unable to load vocab items");
+  }
+
+  const items = itemsResponse.data as VocabItem[];
+  const progressRows = progressResponse.data ?? [];
+  const reviewsRows = reviewsResponse.data ?? [];
+
+  const progressMap = new Map<string, string | null>();
+  progressRows.forEach((row) => {
+    progressMap.set(row.vocab_item_id, row.next_due_at);
+  });
+
+  const reviewStats = new Map<string, { attempts: number; incorrect: number }>();
+  reviewsRows.forEach((row) => {
+    const existing = reviewStats.get(row.vocab_item_id) ?? { attempts: 0, incorrect: 0 };
+    existing.attempts += 1;
+    if (row.result !== "correct") {
+      existing.incorrect += 1;
+    }
+    reviewStats.set(row.vocab_item_id, existing);
+  });
+
+  if (input.mode === "new") {
+    return items.filter((item) => !reviewStats.has(item.id));
+  }
+
+  if (input.mode === "weak") {
+    const weakCandidates = items
+      .map((item) => {
+        const stats = reviewStats.get(item.id);
+        if (!stats || stats.attempts === 0) {
+          return null;
+        }
+        const errorRate = stats.incorrect / stats.attempts;
+        return {
+          item,
+          attempts: stats.attempts,
+          incorrect: stats.incorrect,
+          errorRate,
+        };
+      })
+      .filter((entry): entry is { item: VocabItem; attempts: number; incorrect: number; errorRate: number } => Boolean(entry))
+      .filter((entry) => entry.attempts >= 2 && entry.errorRate >= 0.4)
+      .sort((a, b) => b.errorRate - a.errorRate || b.incorrect - a.incorrect || b.attempts - a.attempts);
+
+    if (weakCandidates.length > 0) {
+      return weakCandidates.map((entry) => entry.item);
+    }
+  }
+
+  // Default mode: due
+  return items.filter((item) => {
+    const nextDueAt = progressMap.get(item.id);
+    if (!nextDueAt) {
+      return true;
+    }
+    return nextDueAt <= nowIso;
+  });
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
