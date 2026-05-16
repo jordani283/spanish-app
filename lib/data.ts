@@ -260,18 +260,29 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const supabase = await createClient();
 
-  const [{ count: verbsCount }, { count: queueCount }, attemptsResponse, grammarResponse] =
+  const [
+    verbsResponse,
+    progressResponse,
+    correctReviewsResponse,
+    attemptsResponse,
+    grammarResponse,
+  ] =
     await Promise.all([
       supabase
         .from("vocab_items")
-        .select("id", { count: "exact", head: true })
+        .select("id")
         .eq("user_id", userId)
         .eq("part_of_speech", "verb"),
       supabase
         .from("vocab_progress")
-        .select("id", { count: "exact", head: true })
+        .select("vocab_item_id,next_due_at")
         .eq("user_id", userId)
-        .lte("next_due_at", new Date().toISOString()),
+        .not("vocab_item_id", "is", null),
+      supabase
+        .from("vocab_reviews")
+        .select("vocab_item_id")
+        .eq("user_id", userId)
+        .eq("result", "correct"),
       supabase
         .from("vocab_reviews")
         .select("result, reviewed_at, attempts_in_round")
@@ -283,6 +294,25 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         .eq("user_id", userId)
         .gte("attempted_at", sevenDaysAgo.toISOString()),
     ]);
+
+  const verbs = verbsResponse.data ?? [];
+  const verbIds = new Set(verbs.map((row) => row.id));
+  const progressRows = progressResponse.data ?? [];
+  const nowIso = new Date().toISOString();
+
+  const seenVerbIds = new Set(progressRows.map((row) => row.vocab_item_id));
+  const dueVerbIds = new Set(
+    progressRows
+      .filter((row) => row.next_due_at && row.next_due_at <= nowIso)
+      .map((row) => row.vocab_item_id),
+  );
+  const unseenVerbIds = [...verbIds].filter((id) => !seenVerbIds.has(id));
+
+  const correctVerbIds = new Set(
+    (correctReviewsResponse.data ?? [])
+      .map((row) => row.vocab_item_id)
+      .filter((id) => verbIds.has(id)),
+  );
 
   const attempts = attemptsResponse.data ?? [];
   const grammarAttempts = grammarResponse.data ?? [];
@@ -326,9 +356,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .slice(0, 3);
 
   return {
-    knownVerbs: verbsCount ?? 0,
-    verbGoal: 500,
-    activeReviewQueue: queueCount ?? 0,
+    knownVerbs: correctVerbIds.size,
+    verbGoal: verbIds.size,
+    activeReviewQueue: dueVerbIds.size + unseenVerbIds.length,
     streakDays: activeDays,
     grammarMasteryPct:
       grammarAttempts.length === 0
