@@ -11,7 +11,7 @@ type Props = {
 export function ReviewSession({ items }: Props) {
   const initial = useMemo(() => buildReviewSession(items), [items]);
   const [state, setState] = useState(initial);
-  const [answer, setAnswer] = useState("");
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
   const [attemptsThisRound, setAttemptsThisRound] = useState(1);
   const [startedAt, setStartedAt] = useState(() => Date.now());
@@ -20,15 +20,11 @@ export function ReviewSession({ items }: Props) {
   const current = state.current;
   const complete = isReviewSessionComplete(state);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
+  async function handleMark(result: "correct" | "incorrect") {
     if (!current) {
       return;
     }
 
-    const normalizedAnswer = answer.trim().toLowerCase();
-    const expected = current.translation.trim().toLowerCase();
-    const result = normalizedAnswer === expected ? "correct" : "incorrect";
     const responseTimeMs = Date.now() - startedAt;
 
     await fetch("/api/review/attempt", {
@@ -36,7 +32,7 @@ export function ReviewSession({ items }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         vocabId: current.vocabId,
-        userAnswer: answer.trim(),
+        userAnswer: result === "correct" ? "self_assessed_correct" : "self_assessed_incorrect",
         expectedAnswer: current.translation,
         result,
         responseTimeMs,
@@ -46,7 +42,7 @@ export function ReviewSession({ items }: Props) {
 
     const nextState = submitReviewAttempt(state, {
       vocabId: current.vocabId,
-      userAnswer: answer.trim(),
+      userAnswer: result === "correct" ? "self_assessed_correct" : "self_assessed_incorrect",
       expectedAnswer: current.translation,
       result,
       responseTimeMs,
@@ -73,7 +69,7 @@ export function ReviewSession({ items }: Props) {
     setLastFeedback(
       result === "correct" ? "Correct. Moving to next item." : "Incorrect. This card will repeat later in this session.",
     );
-    setAnswer("");
+    setIsAnswerRevealed(false);
     setStartedAt(Date.now());
     setAttemptsThisRound(result === "correct" ? 1 : attemptsThisRound + 1);
   }
@@ -133,21 +129,31 @@ export function ReviewSession({ items }: Props) {
         />
       </div>
 
-      <form
-        className="sticky bottom-20 mt-6 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur sm:static sm:flex-row sm:items-center"
-        onSubmit={handleSubmit}
-      >
-        <input
-          className="input-base min-h-12 flex-1"
-          value={answer}
-          onChange={(event) => setAnswer(event.target.value)}
-          placeholder="Type the meaning in English"
-          required
-        />
-        <button className="btn-primary w-full sm:w-auto" type="submit">
-          Check answer
-        </button>
-      </form>
+      <div className="sticky bottom-20 mt-6 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur sm:static">
+        {!isAnswerRevealed ? (
+          <button className="btn-primary w-full" type="button" onClick={() => setIsAnswerRevealed(true)}>
+            Reveal answer
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Answer</p>
+              <p className="mt-1 text-base font-medium text-slate-900">{current?.translation}</p>
+            </div>
+            <p className="text-xs text-slate-500">
+              Mark whether you got it right (even if wording or spelling differed).
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button className="btn-primary w-full bg-emerald-600 hover:bg-emerald-700" type="button" onClick={() => handleMark("correct")}>
+                I got it right
+              </button>
+              <button className="btn-secondary w-full" type="button" onClick={() => handleMark("incorrect")}>
+                I got it wrong
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {lastFeedback && <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{lastFeedback}</p>}
 
