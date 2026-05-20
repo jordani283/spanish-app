@@ -12,9 +12,15 @@ export async function createClient() {
         return cookieStore.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
-        });
+        // In Server Components, cookie mutation can throw.
+        // We ignore here and rely on route handlers/callback flows for session writes.
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // no-op
+        }
       },
     },
   });
